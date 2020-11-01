@@ -43,11 +43,28 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GlobalConfiguration\Configuration.cs" />
+    <Compile Include="GlobalConfiguration\GlobalFactory.cs" />
+    <Compile Include="Models\Elevator.cs" />
+    <Compile Include="Models\ElevatorState.cs" />
+    <Compile Include="SchedulingLogic\ElevatorManager.cs" />
+    <Compile Include="SchedulingLogic\ElevatorThread.cs" />
+    <Compile Include="Models\Floor.cs" />
+    <Compile Include="GlobalConfiguration\GlobalCache.cs" />
+    <Compile Include="Models\Request.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Models\Rider.cs" />
+    <Compile Include="SchedulingLogic\RequestManager.cs" />
+    <Compile Include="SchedulingLogic\RiderThread.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="data.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
