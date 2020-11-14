@@ -1,14 +1,21 @@
-﻿using MultithreadingElevator.SchedulingLogic;
+﻿using MultithreadingElevator.Models;
+using MultithreadingElevator.SchedulingLogic;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 
 namespace MultithreadingElevator
 {
     public class Floor
     {
-        private object buttonUpLock = new object();
-        private volatile bool isButtonUpPressed;
+        private Dictionary<Direction, FloorDirectionButton> Buttons =
+            new List<Direction>((Direction[])Enum.GetValues(typeof(Direction)))
+                .ToDictionary(d => d, d => new FloorDirectionButton());
 
-        private object buttonDownLock = new object();
-        private volatile bool isButtonDownPressed;
+        public Dictionary<Direction, FloorDirectionButtonEvent> Events =
+            new List<Direction>((Direction[])Enum.GetValues(typeof(Direction)))
+                .ToDictionary(d => d, d => new FloorDirectionButtonEvent());
 
         public int Number { get; }
 
@@ -17,45 +24,49 @@ namespace MultithreadingElevator
             Number = number;
         }
 
-        public void SelectUpButton()
+        public void ElevatorComes(Elevator elevator, Direction direction)
         {
-            lock (buttonUpLock)
+            lock (Buttons[direction].ElevatorsToEnter)
             {
-                if (!isButtonUpPressed)
+                Buttons[direction].ElevatorsToEnter.Add(elevator);
+            }
+        }
+
+        public void ElevatorLeaves(Elevator elevator, Direction direction)
+        {
+            lock (Buttons[direction].ElevatorsToEnter)
+            {
+                Buttons[direction].ElevatorsToEnter.Remove(elevator);
+
+                if (!Buttons[direction].ElevatorsToEnter.Any())
                 {
-                    ElevatorManager.FindAppropriateElevator(movingUp: true, this);
+                    Buttons[direction].IsPressed = false;
+
+                    Events[direction].ButtonReleasedEvent.Set();
+                }
+            }
+        }
+
+        public List<Elevator> GetElevatorsToEnter(Direction direction)
+        {
+            lock (Buttons[direction].ElevatorsToEnter)
+            {
+                return Buttons[direction].ElevatorsToEnter.Select(e => e).ToList();
+            }
+        }
+
+        public void SelectButton(Direction direction)
+        {
+            lock (Buttons[direction].PressButtonLock)
+            {
+                if (!Buttons[direction].IsPressed)
+                {
+                    ElevatorManager.FindAppropriateElevator(direction, this);
                 }
 
-                isButtonUpPressed = true;
-            }
-        }
+                Buttons[direction].IsPressed = true;
 
-        public void SelectDownButton()
-        {
-            lock (buttonDownLock)
-            {
-                if (!isButtonDownPressed)
-                {
-                    ElevatorManager.FindAppropriateElevator(movingUp: false, this);
-                }
-
-                isButtonDownPressed = true;
-            }
-        }
-
-        public void ReleaseUpButton()
-        {
-            lock (buttonUpLock)
-            {
-                isButtonUpPressed = false;
-            }
-        }
-
-        public void ReleaseDownButton()
-        {
-            lock (buttonDownLock)
-            {
-                isButtonDownPressed = false;
+                Events[direction].ButtonReleasedEvent.Reset();
             }
         }
 

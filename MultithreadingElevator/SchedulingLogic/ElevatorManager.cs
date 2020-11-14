@@ -1,6 +1,5 @@
 ﻿using MultithreadingElevator.Models;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace MultithreadingElevator.SchedulingLogic
 {
@@ -8,12 +7,12 @@ namespace MultithreadingElevator.SchedulingLogic
     {
         private static object findElevatorLock = new object();
 
-        public static void FindAppropriateElevator(bool movingUp, Floor floorFrom)
+        public static void FindAppropriateElevator(Direction direction, Floor floorFrom)
         {
-            new Task(() => FindAppropriateElevatorInternal(movingUp, floorFrom)).Start();
+            FindAppropriateElevatorInternal(direction, floorFrom);
         }
 
-        private static void FindAppropriateElevatorInternal(bool movingUp, Floor floorFrom)
+        private static void FindAppropriateElevatorInternal(Direction direction, Floor floorFrom)
         {
             lock (findElevatorLock)
             {
@@ -21,29 +20,34 @@ namespace MultithreadingElevator.SchedulingLogic
 
                 while (elevator == null)
                 {
-                    elevator = GlobalCache.Elevators.FirstOrDefault(e => IsAppropriate(e, movingUp, floorFrom));
+                    elevator = GlobalCache.Elevators.FirstOrDefault(e => IsAppropriate(e, direction, floorFrom));
                 }
 
-                elevator.SelectFloor(floorFrom);
+                elevator.SelectFloor(floorFrom, direction);
             }
         }
 
-        private static bool IsAppropriate(Elevator elevator, bool movingUp, Floor floorFrom)
+        private static bool IsAppropriate(Elevator elevator, Direction direction, Floor floorFrom)
         {
+            //elevator is waiting
+            if (elevator.State == ElevatorState.Wait)
+            {
+                return true;
+            }
+
+            if (elevator.Direction != direction)
+            {
+                return false;
+            }
+
             //elevator is moving in same side (up) and elevator's way contains floor where rider is waiting
-            if (elevator.State == ElevatorState.MovingUp && movingUp && elevator.CurrentFloor < floorFrom)
+            if (direction == Direction.Up && elevator.CurrentFloor < floorFrom)
             {
                 return true;
             }
 
             //elevator is moving in same side (down) and elevator's way contains floor where rider is waiting
-            if (elevator.State == ElevatorState.MovingDown && !movingUp && elevator.CurrentFloor > floorFrom)
-            {
-                return true;
-            }
-
-            //elevator is waiting
-            if (elevator.State == ElevatorState.Waiting)
+            if (direction == Direction.Down && elevator.CurrentFloor > floorFrom)
             {
                 return true;
             }

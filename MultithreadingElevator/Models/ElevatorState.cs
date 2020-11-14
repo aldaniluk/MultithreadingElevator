@@ -2,9 +2,8 @@
 {
     public enum ElevatorState
     {
-        Waiting,
-        MovingUp,
-        MovingDown,
-        ObtainigRequests
+        Wait,
+        Move,
+        Stop
     }
 }
