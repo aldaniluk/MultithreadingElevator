@@ -27,7 +27,7 @@ namespace MultithreadingElevator.Models
 
         public FloorDirectionButtonEvent()
         {
-            ButtonReleasedEvent = new ManualResetEvent(false);
+            ButtonReleasedEvent = new ManualResetEvent(true);
             RidersCanEnterEvent = new ManualResetEvent(false);
         }
     }

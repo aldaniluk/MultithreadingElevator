@@ -18,8 +18,6 @@ namespace MultithreadingElevator
             Number = number;
         }
 
-        public RiderState State { get; set; } = RiderState.AtFloor;
-
         public void Run(int riderThreadNumber, Floor floorFrom, Floor floorTo)
         {
             this.riderThreadNumber = riderThreadNumber;
@@ -27,22 +25,8 @@ namespace MultithreadingElevator
             this.floorTo = floorTo;
             this.direction = floorFrom < floorTo ? Direction.Up : Direction.Down;
 
-            while (true)
-            {
-                switch (State)
-                {
-                    case RiderState.AtFloor:
-                        AtFloor();
-                        break;
-                    case RiderState.AtElevator:
-                        AtElevator();
-                        break;
-                    case RiderState.End:
-                        return;
-                    default:
-                        throw new Exception("Unsupported RiderState");
-                }
-            }
+            AtFloor();
+            AtElevator();
         }
 
         private void AtFloor()
@@ -60,8 +44,6 @@ namespace MultithreadingElevator
 
                     Console.WriteLine($"T{riderThreadNumber}: R{Number} enters E{elevator.Number} on F{floorFrom.Number}");
 
-                    State = RiderState.AtElevator;
-
                     return;
                 }
             }
@@ -78,8 +60,6 @@ namespace MultithreadingElevator
 
             Console.WriteLine($"T{riderThreadNumber}: R{Number} exits E{elevator.Number} on F{floorTo.Number}");
             elevator.Exit();
-
-            State = RiderState.End;
         }
     }
 }
