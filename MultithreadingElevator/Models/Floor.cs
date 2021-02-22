@@ -3,7 +3,6 @@ using MultithreadingElevator.SchedulingLogic;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 
 namespace MultithreadingElevator
 {
@@ -28,6 +27,8 @@ namespace MultithreadingElevator
         {
             lock (Buttons[direction].ElevatorsToEnter)
             {
+                Events[direction].RidersCanEnterEvent.Set();
+
                 Buttons[direction].ElevatorsToEnter.Add(elevator);
             }
         }
@@ -42,6 +43,7 @@ namespace MultithreadingElevator
                 {
                     Buttons[direction].IsPressed = false;
 
+                    Events[direction].RidersCanEnterEvent.Reset();
                     Events[direction].ButtonReleasedEvent.Set();
                 }
             }
@@ -68,31 +70,6 @@ namespace MultithreadingElevator
 
                 Events[direction].ButtonReleasedEvent.Reset();
             }
-        }
-
-        public static bool operator <(Floor lhs, Floor rhs)
-        {
-            return lhs.Number < rhs.Number;
-        }
-
-        public static bool operator <=(Floor lhs, Floor rhs)
-        {
-            return lhs.Number <= rhs.Number;
-        }
-
-        public static bool operator >(Floor lhs, Floor rhs)
-        {
-            return lhs.Number > rhs.Number;
-        }
-
-        public static bool operator >=(Floor lhs, Floor rhs)
-        {
-            return lhs.Number >= rhs.Number;
-        }
-
-        public override string ToString()
-        {
-            return Number.ToString();
         }
     }
 }

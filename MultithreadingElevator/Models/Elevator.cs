@@ -10,7 +10,7 @@ namespace MultithreadingElevator
     {
         private int ridersCount;
         private Dictionary<Floor, bool> floorsToStop = GlobalCache.Floors.ToDictionary(f => f, f => false);
-        private int waitRidersForMilliSeconds = 2_000;
+        private int waitRidersForMilliSeconds = 100;
         private AutoResetEvent currentElevatorObtainedRequestEvent = new AutoResetEvent(false);
         private object enterRiderLock = new object();
 
@@ -118,7 +118,7 @@ namespace MultithreadingElevator
                 return;
             }
 
-            if (CurrentFloor < lowestFloor)
+            if (CurrentFloor.Number < lowestFloor.Number)
             {
                 Console.WriteLine($"E{Number} moves up to F{CurrentFloor.Number + 1}");
 
@@ -134,27 +134,22 @@ namespace MultithreadingElevator
 
         private void Stop()
         {
-            Console.WriteLine($"E{Number} on F{CurrentFloor} opens");
+            Console.WriteLine($"E{Number} on F{CurrentFloor.Number} opens");
 
             RidersCanExitEvents[CurrentFloor].Set();
             WaitRiders();
             RidersCanExitEvents[CurrentFloor].Reset();
 
             CurrentFloor.ElevatorComes(this, Direction.Value);
-
-            CurrentFloor.Events[Direction.Value].RidersCanEnterEvent.Set();
             WaitRiders();
-            CurrentFloor.Events[Direction.Value].RidersCanEnterEvent.Reset();
+            CurrentFloor.ElevatorLeaves(this, Direction.Value);
 
-            Console.WriteLine($"E{Number} on F{CurrentFloor} closes");
+            Console.WriteLine($"E{Number} on F{CurrentFloor.Number} closes");
 
-            //release buttons
             lock (floorsToStop)
             {
                 floorsToStop[CurrentFloor] = false;
             }
-
-            CurrentFloor.ElevatorLeaves(this, Direction.Value);
 
             State = ElevatorState.Move;
         }
@@ -168,7 +163,7 @@ namespace MultithreadingElevator
         private void RidersCountChanged()
         {
             //when each new rider enters/exits elevator, it should prolongue its waiting on CurrentFloor with open doors
-            waitRidersForMilliSeconds += 5_00;
+            waitRidersForMilliSeconds += 100;
         }
     }
 }

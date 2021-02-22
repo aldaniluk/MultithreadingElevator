@@ -50,6 +50,7 @@
     <Compile Include="Models\Elevator.cs" />
     <Compile Include="Models\ElevatorState.cs" />
     <Compile Include="Models\FloorDirectionButton.cs" />
+    <Compile Include="Models\RiderState.cs" />
     <Compile Include="SchedulingLogic\ElevatorManager.cs" />
     <Compile Include="Models\Floor.cs" />
     <Compile Include="GlobalConfiguration\GlobalCache.cs" />

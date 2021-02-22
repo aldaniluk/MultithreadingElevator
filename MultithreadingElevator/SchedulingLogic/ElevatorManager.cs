@@ -41,13 +41,13 @@ namespace MultithreadingElevator.SchedulingLogic
             }
 
             //elevator is moving in same side (up) and elevator's way contains floor where rider is waiting
-            if (direction == Direction.Up && elevator.CurrentFloor < floorFrom)
+            if (direction == Direction.Up && elevator.CurrentFloor.Number < floorFrom.Number)
             {
                 return true;
             }
 
             //elevator is moving in same side (down) and elevator's way contains floor where rider is waiting
-            if (direction == Direction.Down && elevator.CurrentFloor > floorFrom)
+            if (direction == Direction.Down && elevator.CurrentFloor.Number > floorFrom.Number)
             {
                 return true;
             }

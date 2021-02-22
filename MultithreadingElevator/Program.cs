@@ -34,14 +34,17 @@ namespace MultithreadingElevator
 
         private static void ProcessRequest(int riderThreadNumber)
         {
-            Request request = RequestManager.GetNextRequest();
-
-            if (request == null)
+            while (true)
             {
-                return;
-            }
+                Request request = RequestManager.GetNextRequest();
 
-            request.Rider.Run(riderThreadNumber, request.FloorFrom, request.FloorTo);
+                if (request == null)
+                {
+                    return;
+                }
+
+                request.Rider.Run(riderThreadNumber, request.FloorFrom, request.FloorTo);
+            }
         }
     }
 }
